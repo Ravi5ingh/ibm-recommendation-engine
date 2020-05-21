@@ -12,12 +12,8 @@ interactions = ut.read_csv('data/interactions.csv')
 
 # print(se.get_max_num_article_interaction(interactions))
 
-# articles = se.remove_dupes(articles)
-#
-# iv.get_article_id_frequency(articles)
+articles = se.remove_dupes(articles)
 
-# num_articles = se.get_num_articles_with_interaction(interactions)
-
-print(articles.head())
+articles.to_csv('data/articles.csv', index=False)
 
 
