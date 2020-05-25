@@ -1,7 +1,27 @@
 import utility.util as ut
+import utility.processor as pr
 import pandas as pd
 import matplotlib.pyplot as plt
 import statistics as st
+
+
+def get_unique_user_article_interactions(interactions):
+    """
+    Get the number of unique user article interactions
+    :param interactions: The interactions data
+    :return: The number of unique interactions
+    """
+
+    return len(set(interactions.apply(lambda row: str(row['article_id']) + str(row['email']), axis=1)))
+
+def get_unique_users(interactions):
+    """
+    Get the number of unique users in the interactions data
+    :param interactions: The interactions data
+    :return: The number of uniques users
+    """
+
+    return len(set(interactions['email']))
 
 def get_num_articles(articles):
     """
@@ -10,7 +30,7 @@ def get_num_articles(articles):
     :return: The number of unique articles
     """
 
-    # return len(set(articles))
+    return len(set(articles['article_id']))
 
 def get_num_articles_with_interaction(interactions):
     """
@@ -19,13 +39,7 @@ def get_num_articles_with_interaction(interactions):
     :return: The number of articles
     """
 
-    total_interactions = ut.row_count(interactions)
-
-    num_articles = len(set(interactions['article_id']))
-
-    print(f'{num_articles} articles have been interacted with {total_interactions} times')
-
-    return num_articles
+    return len(set(interactions['article_id']))
 
 def remove_dupes(articles):
     """
@@ -44,7 +58,7 @@ def get_max_num_article_interaction(interactions):
     :return: The maximum number of articles any user has interacted with
     """
 
-    return max(get_email_to_interactions_mapping(interactions).values())
+    return max(pr.get_email_to_interactions_mapping(interactions).values())
 
 def get_median_num_article_interaction(interactions):
     """
@@ -53,7 +67,7 @@ def get_median_num_article_interaction(interactions):
     :return: The median number articles interacted with
     """
 
-    return st.median(get_email_to_interactions_mapping(interactions).values())
+    return st.median(pr.get_email_to_interactions_mapping(interactions).values())
 
 
 def show_num_article_interaction_distribution(interactions):
@@ -62,7 +76,7 @@ def show_num_article_interaction_distribution(interactions):
     :param interactions: The user article interaction data
     """
 
-    email_interactions = get_email_to_interactions_mapping(interactions)
+    email_interactions = pr.get_email_to_interactions_mapping(interactions)
 
     # Plot a histogram of the diff values
     plt.hist(email_interactions.values(), bins=1000)
@@ -71,26 +85,6 @@ def show_num_article_interaction_distribution(interactions):
     plt.ylabel('Email addresses with this number of interactions')
 
     plt.show()
-
-def get_email_to_interactions_mapping(interactions):
-    """
-    Get a mapping that give you the number of interactions for each email
-    :param interactions: The user article interaction data
-    :return: The dictionary mapping
-    """
-
-    print('Getting email to interactions mapping...')
-    email_interactions = {}
-    total = ut.row_count(interactions)
-    for index, row in interactions.iterrows():
-        if row['email'] in email_interactions:
-            email_interactions[row['email']] += 1
-        else:
-            email_interactions[row['email']] = 1
-        ut.update_progress(index, total)
-    print('\n')
-
-    return email_interactions
 
 def clean_raw_data():
     """

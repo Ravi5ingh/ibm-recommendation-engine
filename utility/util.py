@@ -10,17 +10,6 @@ import sklearn.manifold as ma
 import requests as rq
 import sys as sy
 
-def sorted_dictionary(dictionary, by_val = True, ascending = True):
-    """
-    Sort the given dictionary
-    :param dictionary: The dictionary to sort
-    :param by_val: Whether or not to sort by value (Default: True)
-    :param ascending: Whether or not to sort in ascending order (Default: True)
-    :return: Get the list of sorted tuples
-    """
-
-    return list(sorted(dictionary.items(), key=lambda x: x[1 if by_val else 0], reverse=not ascending))
-
 def to_txt(text, file_name):
     """
     Writes given string to given file as ASCII
