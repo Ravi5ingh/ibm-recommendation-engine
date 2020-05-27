@@ -4,6 +4,55 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import statistics as st
 
+def get_top_article_ids(n, interactions):
+    """
+    Get the top most interacted with article ids
+    :param n: The number of top article titles
+    :param interactions: The interaction data
+    :return: A list of the top 'n' article ids
+    """
+
+    return interactions.groupby('article_id').count().sort_values(by='email', ascending=False).index
+
+def get_top_articles(n, interactions):
+    """
+    Get the top most interacted with article titles
+    :param n: The number of top articles to return
+    :param interactions: The interactions data
+    :return: A list of the top 'n' article titles
+    """
+
+    titles = []
+    title_indices = interactions.groupby('article_id').count().sort_values(by='email', ascending=False).index
+
+    i = 0
+    for index in title_indices:
+        retrieved_title = interactions[interactions['article_id']==index]['title'].iloc[0]
+        titles.append(retrieved_title)
+        i += 1
+        if i >= n:
+            break
+
+    return titles
+
+def get_most_viewed_article_views(interactions):
+    """
+    Get the number of times the most viewed article was viewed
+    :param interactions: The interactions data
+    :return: The number of times the most viewed article was viewed
+    """
+
+    grouped = interactions.groupby('article_id').count()['email']
+    return grouped[grouped.idxmax()]
+
+def get_most_viewed_article_id(interactions):
+    """
+    Get the most viewed article id in the data set
+    :param interactions: The interactions data
+    :return: The most viewed article id
+    """
+
+    return interactions.groupby('article_id').count()['email'].idxmax()
 
 def get_unique_user_article_interactions(interactions):
     """
@@ -53,12 +102,12 @@ def remove_dupes(articles):
 
 def get_max_num_article_interaction(interactions):
     """
-    Get the maximum number of articles any user has interacted with
+    Get the number of interactions of the most active user
     :param interactions: The user article interaction data
     :return: The maximum number of articles any user has interacted with
     """
 
-    return max(pr.get_email_to_interactions_mapping(interactions).values())
+    return max(interactions.groupby('email').count()['article_id'])
 
 def get_median_num_article_interaction(interactions):
     """
@@ -67,7 +116,7 @@ def get_median_num_article_interaction(interactions):
     :return: The median number articles interacted with
     """
 
-    return st.median(pr.get_email_to_interactions_mapping(interactions).values())
+    return st.median(interactions.groupby('email').count()['article_id'])
 
 
 def show_num_article_interaction_distribution(interactions):
@@ -76,10 +125,10 @@ def show_num_article_interaction_distribution(interactions):
     :param interactions: The user article interaction data
     """
 
-    email_interactions = pr.get_email_to_interactions_mapping(interactions)
+    email_interactions = interactions.groupby('email').count()['article_id']
 
     # Plot a histogram of the diff values
-    plt.hist(email_interactions.values(), bins=1000)
+    plt.hist(email_interactions, bins=100)
     plt.title('Number of articles users interact with')
     plt.xlabel('Number of interactions')
     plt.ylabel('Email addresses with this number of interactions')
