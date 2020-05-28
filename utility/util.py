@@ -32,6 +32,8 @@ def update_progress(current, total, bar_length = 50):
     done = ''.join([char * num_blocks for char in '#'])
     not_done = ''.join([char * (bar_length - num_blocks) for char in ' '])
     printover(f'[{done}{not_done}] - {current}/{total}')
+    if current >= total:
+        print('\n')
 
 def printover(text):
     """

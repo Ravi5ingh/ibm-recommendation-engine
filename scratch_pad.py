@@ -2,6 +2,7 @@ import utility.util as ut
 import statistics as st
 import models.extensions as ex
 import sections as se
+import numpy as np
 
 se.widen_df_display()
 
@@ -10,4 +11,7 @@ se.widen_df_display()
 
 interactions = ut.read_csv('data/interactions.csv')
 
-print(interactions.groupby('article_id').count().sort_values(by='email', ascending=False).index)
+x = [1, 1, 1, 0, 0, 0, 0]
+y = [1, 1, 0, 0, 1, 1, 0]
+
+print(np.dot(x, y))
