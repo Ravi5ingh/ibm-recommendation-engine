@@ -5,6 +5,158 @@ import statistics as st
 import numpy as np
 import models.extensions as ex
 
+
+def get_top_sorted_users(user_id, user_item_matrix, interactions):
+    """
+    Finds the most similar users in terms of the browsing habits (Ranks users who interact more, higher)
+    :param user_id: The user Id to which we have to find the similar users
+    :param user_item_matrix: The user item interaction matrix
+    :param interactions: The raw interaction data
+    :return: A list of user ids (excluding the queried one) that ranks users from most similar to least similar
+    """
+
+    # Get interaction vectors
+    user_vector = user_item_matrix[user_item_matrix['user_id'] == user_id].iloc[0].tolist()[1:]
+
+    # Add user id column to raw interaction data
+    email_to_user_id, user_id_column = get_email_to_id_mapping(interactions)
+    interactions['user_id'] = user_id_column
+
+    # Add similarity and interaction score columns
+    user_item_matrix['similarity'] = user_item_matrix.apply(lambda row: np.dot(user_vector, row.tolist()[1:]), axis=1)
+    user_item_matrix['interaction_score'] = user_item_matrix['user_id'].apply(lambda user_id: len(interactions[interactions['user_id'] == user_id]))
+
+    # Sort by new columns and return user id
+    similar_users = user_item_matrix.sort_values(by=['similarity', 'interaction_score'], ascending=False)['user_id']
+
+    # Return all except for original user id
+    return similar_users[similar_users != user_id]
+
+
+def user_user_recs_part2(user_id, m, user_item_matrix, interactions):
+    """
+    Loops through the users based on closeness to the input user_id
+    For each user - finds articles the user hasn't seen before and provides them as recs
+    Does this until m recommendations are found
+    :param user_id: The user id
+    :param m: The m top recommendations to get
+    :param user_item_matrix: The user item interaction
+    :param interactions: The raw interaction data
+    :return: The top m recommendations
+    """
+
+    seen_article_ids, seen_article_names = get_user_articles(user_id, user_item_matrix, interactions)
+    similar_users_ids = get_top_sorted_users(user_id, user_item_matrix, interactions)
+    recommended_article_ids = []
+    for similar_users_id in similar_users_ids:
+        # Get similar articles
+        similar_article_ids, similar_article_names = get_user_articles(similar_users_id, user_item_matrix, interactions)
+        # Find the unseen ones
+        unseen = np.setdiff1d(similar_article_ids, seen_article_ids)
+        # Make them seen
+        seen_article_ids = np.concatenate((seen_article_ids, unseen), axis=None)
+        # Add them to recommendations
+        recommended_article_ids = np.concatenate((recommended_article_ids, unseen), axis=None)
+        # Break if we have enough
+        if len(recommended_article_ids) >= m:
+            break
+
+    # Sort ids by number of interactions and then prune lowest
+    recommended_article_ids = ex.dictionary((article_id,
+                            ut.row_count(interactions[interactions['article_id'] == float(article_id)]))
+                                for article_id in recommended_article_ids).get_sorted().key_list()[0:m]
+
+    # Get article names
+    recommended_article_names = get_article_names(recommended_article_ids, interactions)
+
+    return recommended_article_ids, recommended_article_names
+
+def test_get_articles(user_item_matrix, interactions):
+    """
+    Test the get article functionality
+    :param user_item_matrix: The user item interaction
+    :param interactions: The raw interaction data
+    """
+
+    # Test your functions here - No need to change this code - just run this cell
+    assert set(get_article_names(['1024.0', '1176.0', '1305.0', '1314.0', '1422.0', '1427.0'], interactions)) == set(
+        ['using deep learning to reconstruct high-resolution audio',
+         'build a python app on the streaming analytics service', 'gosales transactions for naive bayes model',
+         'healthcare python streaming application demo', 'use r dataframes & ibm watson natural language understanding',
+         'use xgboost, scikit-learn & ibm watson machine learning apis']), "Oops! Your the get_article_names function doesn't work quite how we expect."
+    assert set(get_article_names(['1320.0', '232.0', '844.0'], interactions)) == set(
+        ['housing (2015): united states demographic measures', 'self-service data preparation with ibm data refinery',
+         'use the cloudant-spark connector in python notebook']), "Oops! Your the get_article_names function doesn't work quite how we expect."
+    assert set(get_user_articles(20, user_item_matrix, interactions)[0]) == set(['1320.0', '232.0', '844.0'])
+    assert set(get_user_articles(20, user_item_matrix, interactions)[1]) == set(
+        ['housing (2015): united states demographic measures', 'self-service data preparation with ibm data refinery',
+         'use the cloudant-spark connector in python notebook'])
+    assert set(get_user_articles(2, user_item_matrix, interactions)[0]) == set(['1024.0', '1176.0', '1305.0', '1314.0', '1422.0', '1427.0'])
+    assert set(get_user_articles(2, user_item_matrix, interactions)[1]) == set(['using deep learning to reconstruct high-resolution audio',
+                                                'build a python app on the streaming analytics service',
+                                                'gosales transactions for naive bayes model',
+                                                'healthcare python streaming application demo',
+                                                'use r dataframes & ibm watson natural language understanding',
+                                                'use xgboost, scikit-learn & ibm watson machine learning apis'])
+    print("If this is all you see, you passed all of our tests!  Nice job!")
+
+def get_article_names(article_ids, interactions):
+    """
+    Get the article names (title) for the given article ids
+    :param article_ids:
+    :param interactions:
+    :return:
+    """
+
+    return [interactions[interactions['article_id'] == float(article_id)].iloc[0]['title']
+            for article_id in article_ids]
+
+
+def get_user_articles(user_id, user_item_matrix, interactions):
+    """
+    Gets a list of article ids and article titles that have been seen by the given user id
+    :param user_id: The user id
+    :param user_item_matrix: The interaction matrix
+    :param interactions: The raw interaction data
+    :return: 2 outputs: article ids and article names
+    """
+
+    all_article_ids = user_item_matrix.columns.values
+    all_article_ids = all_article_ids[all_article_ids != 'user_id']
+
+    article_ids = all_article_ids[
+        user_item_matrix[user_item_matrix['user_id'] == user_id].iloc[0][all_article_ids] == 1
+    ]
+
+    article_names = get_article_names(article_ids, interactions)
+
+    return article_ids, article_names
+
+
+def user_user_recs(user_id, m, user_item_matrix, interactions):
+    """
+    For the given user id, recommend m articles. [These are the first m articles found (un-seen by the user) when
+    looking for articles similar users interacted with]
+    :param user_id: The user id for whom to recommend articles
+    :param m: The number of articles to recommend
+    :param user_item_matrix: The interaction matrix
+    :param interactions: The raw interaction data
+    :return: The article ids recommended
+    """
+
+    seen_article_ids, seen_article_names = get_user_articles(user_id, user_item_matrix, interactions)
+    similar_users_ids = find_similar_users(user_id, user_item_matrix)
+
+    recommended_article_ids = []
+    for similar_users_id in similar_users_ids:
+        similar_article_ids, similar_article_names = get_user_articles(similar_users_id, user_item_matrix, interactions)
+        unseen = np.setdiff1d(similar_article_ids, seen_article_ids)
+        recommended_article_ids = np.unique(np.concatenate((recommended_article_ids, unseen), axis=None))
+        if len(recommended_article_ids) >= m:
+            break
+
+    return recommended_article_ids[0:m]
+
 def test_similar_users(user_item_matrix):
     """
     Perform some sanity checking on the find similar users functionality
@@ -64,7 +216,7 @@ def create_user_item_matrix(interactions):
     # Create df with user_id column
     print('Creating User Id column...')
     user_item_matrix = pd.DataFrame()
-    email_to_id_mapping = get_email_to_id_mapping(interactions)
+    email_to_id_mapping, user_id_column = get_email_to_id_mapping(interactions)
     user_item_matrix['user_id'] = email_to_id_mapping.values()
 
     # Create df with zeros for each article_id
@@ -139,7 +291,7 @@ def get_top_article_ids(n, interactions):
     :return: A list of the top 'n' article ids
     """
 
-    return interactions.groupby(r'article_id').count().sort_values(by='email', ascending=False).index
+    return interactions.groupby(r'article_id').count().sort_values(by='email', ascending=False).index.values[0:n]
 
 def get_top_articles(n, interactions):
     """
@@ -297,7 +449,7 @@ def email_mapper(interactions):
 
         email_encoded.append(coded_dict[val])
 
-    return coded_dict
+    return coded_dict, email_encoded
 
 def widen_df_display():
     """

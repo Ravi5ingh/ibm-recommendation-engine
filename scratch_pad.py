@@ -10,8 +10,24 @@ se.widen_df_display()
 # list(map(lambda x: x[1], sorted(email_interactions.items(), key=lambda x: x[1])))
 
 interactions = ut.read_csv('data/interactions.csv')
+articles = ut.read_csv('data/articles.csv')
 
-x = [1, 1, 1, 0, 0, 0, 0]
-y = [1, 1, 0, 0, 1, 1, 0]
+user_item_matrix = ut.read_csv('data/user_item_matrix.csv')
 
-print(np.dot(x, y))
+# se.find_similar_users_int(1, user_item_matrix)
+
+# print(se.get_top_sorted_users(1, user_item_matrix, interactions))
+
+# print(se.user_user_recs(1, 10, user_item_matrix, interactions))
+
+# se.test_get_articles(user_item_matrix, interactions)
+
+# print(se.user_user_recs_part2(1, 10, user_item_matrix, interactions))
+
+# Quick spot check - don't change this code - just use it to test your functions
+rec_ids, rec_names = se.user_user_recs_part2(20, 10, user_item_matrix, interactions)
+print("The top 10 recommendations for user 20 are the following article ids:")
+print(rec_ids)
+print()
+print("The top 10 recommendations for user 20 are the following article names:")
+print(rec_names)

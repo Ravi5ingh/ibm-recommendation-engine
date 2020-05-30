@@ -5,8 +5,8 @@ import investigations as iv
 
 se.widen_df_display()
 
-# articles = ut.read_csv('data/articles.csv')
-# interactions = ut.read_csv('data/interactions.csv')
+articles = ut.read_csv('data/articles.csv')
+interactions = ut.read_csv('data/interactions.csv')
 
 # print(se.get_median_num_article_interaction(interactions))
 
@@ -62,4 +62,12 @@ user_item_matrix = pd.read_csv('data/user_item_matrix.csv')
 
 # print(se.find_similar_users(1243, user_item_matrix))
 
-se.test_similar_users(user_item_matrix)
+# se.test_similar_users(user_item_matrix)
+
+# print(se.get_article_names([1430, 1276], interactions))
+
+# article_ids, article_names = se.get_user_articles(1, user_item_matrix, interactions)
+#
+article_ids = se.user_user_recs(1, 10, user_item_matrix, interactions)
+
+print(article_ids)

@@ -21,6 +21,22 @@ class dictionary(dict):
 
         return list(self.values())[value_index]
 
+    def key_list(self):
+        """
+        Get the keys as a list
+        :return: The key list
+        """
+
+        return list(self.keys())
+
+    def value_list(self):
+        """
+        Get the values as a list
+        :return: The value list
+        """
+
+        return list(self.values())
+
     def get_sorted(self, by_val=True, ascending=True):
         """
         Sort the dictionary and return the sorted version
