@@ -151,3 +151,5 @@ user_item_matrix_train, u_train, s_train, vt_train = \
 # SECTION 5.7
 print('Plotting accurancy vs latent features based on test train user item matrices svd')
 se.plot_accuracy_vs_latent_features_train_test(u_train, s_train, vt_train, user_item_matrix_test)
+
+se.print_dicussion()

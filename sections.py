@@ -5,6 +5,26 @@ import statistics as st
 import numpy as np
 import models.extensions as ex
 
+def print_dicussion():
+    """
+    Prints my final thoughts on the analysis
+    """
+
+    print('\n\nFirst of all, the plot seems to indicate a fairly straight-forward conclsion '
+          '(ie. the more latent features we use, the better the accuracy).\nThe fact that we have trained '
+          'and tested on separate data lends further credibility to this conclusion, however, the fact that '
+          'there seems to be a \nmathematical relationship between the accuracy and the number of latent '
+          'features also indicates over-fitting because this relationship is likely a \nside-effect of SVD '
+          '(as this is a deterministic technique as opposed to a stochastic one)\n\nIf I were to productionize '
+          'this, I would take the following steps:\n- First of all I would have invested effort in content-based '
+          'recommendation. I believe it should be possible to create effective models by combining \nword2vec and neural'
+          ' networks. For eg. vectorizing articles by taking the average of all the word vectors and then recommending'
+          ' articles whose word vector \ndistances are small\n- I would factor in the number of times a user has '
+          'interacted with an article and assign weights to every unique user-article combo.\n- This is more'
+          ' a customer journey related suggestion, but it would be a good idea (when on-boarding users) to get them '
+          'to select a list of article \ncategories that interest them and categorize users that way.'
+          ' This would go some way to mitigate the cold start problem.')
+
 def plot_accuracy_vs_latent_features_train_test(u_train, s_train, vt_train, user_item_matrix_test):
     """
     Plots how the number of latent features affects our ability to predict user item interaction BUT based on the

@@ -7,10 +7,7 @@ import pandas as pd
 
 se.widen_df_display()
 
-xx = [1.0, 2.0, 3.0]
-
-print(xx)
-print(set(map(lambda x: str(x), xx)))
+se.print_dicussion()
 
 #region Old
 
