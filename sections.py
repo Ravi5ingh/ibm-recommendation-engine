@@ -50,15 +50,8 @@ def create_test_and_train_user_item(interactions_train, interactions_test):
         The article ids that appear in both train and test
     """
 
-    # Un-comment this to actually create the train, test user interaction matrices
-    # user_item_matrix_train = create_user_item_matrix(interactions_train)
-    # user_item_matrix_test = create_user_item_matrix(interactions_test)
-    #
-    # user_item_matrix_train.to_csv('data/user_item_matrix_train.csv', index=False)
-    # user_item_matrix_test.to_csv('data/user_item_matrix_test.csv', index=False)
-
-    user_item_matrix_train = ut.read_csv('data/user_item_matrix_train.csv')
-    user_item_matrix_test= ut.read_csv('data/user_item_matrix_test.csv')
+    user_item_matrix_train = create_user_item_matrix(interactions_train)
+    user_item_matrix_test = create_user_item_matrix(interactions_test)
 
     train_user_ids = user_item_matrix_train['user_id']
     test_user_ids = user_item_matrix_test['user_id']
@@ -116,7 +109,7 @@ def perform_svd(user_item_matrix, user_ids = None, article_ids = None):
 
     # If both values are provided, prune to preserve subset
     if user_ids is not None and article_ids is not None:
-        article_ids = np.intersect1d(article_ids, user_item_matrix.columns.values)
+        article_ids = np.intersect1d(article_ids, user_item_matrix.columns.values[1:])
         user_item_matrix = user_item_matrix[user_item_matrix['user_id'].isin(user_ids)]
         user_item_matrix = user_item_matrix[article_ids].values.astype(int)
     else:
