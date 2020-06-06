@@ -111,7 +111,7 @@ def perform_svd(user_item_matrix, user_ids = None, article_ids = None):
     :param user_item_matrix: The user item interaction matrix
     :param user_ids: The user ids to preserve (Default: All of them)
     :param article_ids: The article ids to preserve (Default: All of them)
-    :return: The U, Σ, V-transpose values
+    :return: The U, Σ, V-transpose matrices
     """
 
     # If both values are provided, prune to preserve subset
@@ -289,7 +289,7 @@ def find_similar_users(user_id, user_item_matrix):
     :param user_item_matrix: The user item interaction matrix
     :return: A list of user ids (excluding the queried one) that ranks users from most similar to least similar
     """
-    
+
     user_vector = user_item_matrix[user_item_matrix['user_id'] == user_id].iloc[0].tolist()[1:]
     other_users_vectors = user_item_matrix[user_item_matrix['user_id'] != user_id]
 
