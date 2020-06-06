@@ -3,16 +3,32 @@ import statistics as st
 import models.extensions as ex
 import sections as se
 import numpy as np
+import pandas as pd
 
 se.widen_df_display()
+
+# user_item_matrix = ut.read_csv('data/user_item_matrix.csv')
+# user_item_matrix = user_item_matrix[user_item_matrix.columns[1:]].values.astype(int)
+
+dd = pd.DataFrame()
+dd['a'] = [1, 2, 3]
+dd['b'] = [1, 2, 3]
+
+ut.whats(dd.columns.values)
+
+# print(u.shape)
+
+# print(s.shape)
+# print(vt.shape)
+#region Old
 
 # Get values of dictionary in sorted format
 # list(map(lambda x: x[1], sorted(email_interactions.items(), key=lambda x: x[1])))
 
-interactions = ut.read_csv('data/interactions.csv')
-articles = ut.read_csv('data/articles.csv')
-
-user_item_matrix = ut.read_csv('data/user_item_matrix.csv')
+# interactions = ut.read_csv('data/interactions.csv')
+# articles = ut.read_csv('data/articles.csv')
+#
+# user_item_matrix = ut.read_csv('data/user_item_matrix.csv')
 
 # se.find_similar_users_int(1, user_item_matrix)
 
@@ -25,9 +41,11 @@ user_item_matrix = ut.read_csv('data/user_item_matrix.csv')
 # print(se.user_user_recs_part2(1, 10, user_item_matrix, interactions))
 
 # Quick spot check - don't change this code - just use it to test your functions
-rec_ids, rec_names = se.user_user_recs_part2(20, 10, user_item_matrix, interactions)
-print("The top 10 recommendations for user 20 are the following article ids:")
-print(rec_ids)
-print()
-print("The top 10 recommendations for user 20 are the following article names:")
-print(rec_names)
+# rec_ids, rec_names = se.user_user_recs_part2(20, 10, user_item_matrix, interactions)
+# print("The top 10 recommendations for user 20 are the following article ids:")
+# print(rec_ids)
+# print()
+# print("The top 10 recommendations for user 20 are the following article names:")
+# print(rec_names)
+
+#endregion

@@ -5,6 +5,127 @@ import statistics as st
 import numpy as np
 import models.extensions as ex
 
+def plot_accuracy_vs_latent_features_train_test(u_train, s_train, vt_train, user_item_matrix_test):
+    """
+    Plots how the number of latent features affects our ability to predict user item interaction BUT based on the
+    results of the decomposition of the train user item matrix vs the test user item matrix
+    :param u_train: The unit vector component of the training side
+    :param s_train: The latent feature effectiveness diagonal matrix of the training side
+    :param vt_train: V-Transpose - The matrix of latent features to items of the training side
+    :param user_item_matrix_test: The test user item interaction matrix
+    """
+
+    user_item_matrix_test = user_item_matrix_test[user_item_matrix_test.columns[1:]].values.astype(int)
+    num_latent_features = np.arange(10, 800, 20)
+    errors = []
+
+    for k in num_latent_features:
+
+        # Prune
+        u_pruned, s_pruned, vt_pruned = u_train[:, :k], np.diag(s_train[:k]), vt_train[:k, :]
+        user_item_prediction = np.round(np.dot(np.dot(u_pruned, s_pruned), vt_pruned))
+        diffs = user_item_matrix_test - user_item_prediction
+
+        # Calculate error fraction
+        err = np.sum(np.abs(diffs))
+        err /= diffs.shape[0] * diffs.shape[1]
+        errors.append(err)
+
+    plt.plot(num_latent_features, 1 - np.array(errors))
+    plt.xlabel('Number of Latent Features')
+    plt.ylabel('Accuracy')
+    plt.title('Accuracy vs. Number of Latent Features')
+
+    plt.show()
+
+def create_test_and_train_user_item(interactions_train, interactions_test):
+    """
+    Create user item matrices from the train and test split of the raw interactions data
+    :param interactions_train: The train section of the raw interactions data
+    :param interactions_test: The test section of the raw interactions data
+    :return:
+        The train user item matrices
+        The test user item matrices
+        The user ids that appear in both train and test
+        The article ids that appear in both train and test
+    """
+
+    # Un-comment this to actually create the train, test user interaction matrices
+    # user_item_matrix_train = create_user_item_matrix(interactions_train)
+    # user_item_matrix_test = create_user_item_matrix(interactions_test)
+    #
+    # user_item_matrix_train.to_csv('data/user_item_matrix_train.csv', index=False)
+    # user_item_matrix_test.to_csv('data/user_item_matrix_test.csv', index=False)
+
+    user_item_matrix_train = ut.read_csv('data/user_item_matrix_train.csv')
+    user_item_matrix_test= ut.read_csv('data/user_item_matrix_test.csv')
+
+    train_user_ids = user_item_matrix_train['user_id']
+    test_user_ids = user_item_matrix_test['user_id']
+    intersect_user_ids = set(train_user_ids).intersection(set(test_user_ids))
+
+    train_articles_ids = user_item_matrix_train.columns[1:]
+    test_article_ids = user_item_matrix_test.columns[1:]
+    intersect_article_ids = np.intersect1d(train_articles_ids, test_article_ids)
+
+    return user_item_matrix_train, user_item_matrix_test, intersect_user_ids, intersect_article_ids
+
+def plot_accuracy_vs_latent_features(interactions, user_item_arr_matrix, u, s, vt):
+    """
+    Given the user item array matrix and the matrices resulting from the decomposition of the user item matrix, plots
+    a chart to show how the number of latent features affects the accuracy of prediction
+    :param interactions: The raw interactions data
+    :param user_item_arr_matrix: The user item interaction matrix
+    :param u: The unit vector component
+    :param s: The latent feature effectiveness diagonal matrix
+    :param vt: V-Transpose - The matrix of latent features to items
+    """
+
+    num_latent_feats = np.arange(10, 800, 20)
+    errors = []
+
+    for k in num_latent_feats:
+        # restructure with k latent features
+        s_pruned, u_pruned, vt_pruned = np.diag(s[:k]), u[:, :k], vt[:k, :]
+
+        # take dot product
+        user_item_est = np.around(np.dot(np.dot(u_pruned, s_pruned), vt_pruned))
+
+        # compute error for each prediction to actual value
+        diffs = np.subtract(user_item_arr_matrix, user_item_est)
+
+        # total errors and keep track of them
+        err = np.sum(np.sum(np.abs(diffs)))
+        errors.append(err)
+
+    plt.plot(num_latent_feats, 1 - np.array(errors) / interactions.shape[0])
+    plt.xlabel('Number of Latent Features')
+    plt.ylabel('Accuracy')
+    plt.title('Accuracy vs. Number of Latent Features')
+
+    plt.show()
+
+def perform_svd(user_item_matrix, user_ids = None, article_ids = None):
+    """
+    Perform SVD on the user item interaction matrix and return the results
+    :param user_item_matrix: The user item interaction matrix
+    :param user_ids: The user ids to preserve (Default: All of them)
+    :param article_ids: The article ids to preserve (Default: All of them)
+    :return: The U, Σ, V-transpose values
+    """
+
+    # If both values are provided, prune to preserve subset
+    if user_ids is not None and article_ids is not None:
+        article_ids = np.intersect1d(article_ids, user_item_matrix.columns.values)
+        user_item_matrix = user_item_matrix[user_item_matrix['user_id'].isin(user_ids)]
+        user_item_matrix = user_item_matrix[article_ids].values.astype(int)
+    else:
+        user_item_matrix = user_item_matrix[user_item_matrix.columns[1:]].values.astype(int)
+
+    # Perform SVD
+    u, s, vt = np.linalg.svd(user_item_matrix, False)
+
+    return user_item_matrix, u, s, vt
 
 def get_top_sorted_users(user_id, user_item_matrix, interactions):
     """
@@ -413,6 +534,15 @@ def show_num_article_interaction_distribution(interactions):
     plt.ylabel('Email addresses with this number of interactions')
 
     plt.show()
+
+def get_max_views_by_user(interactions):
+    """
+    Get the maximum number of times an article has been viewed by a user
+    :param interactions: The user article interaction data
+    :return: The maximum number of times an article has been viewed by a user
+    """
+
+    return interactions.groupby('email')['article_id'].count().max()
 
 def clean_raw_data():
     """
