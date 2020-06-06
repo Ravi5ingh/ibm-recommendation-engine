@@ -47,30 +47,30 @@ interactions = ut.read_csv('data/interactions.csv')
 # print(f'The number of unique articles on the IBM platform: {total_articles}')
 
 
+# ##################################################################################
+# #   Part II: Rank-Based Recommendations
+# ##################################################################################
+#
+# # SECTION 2.1
+# print(se.get_top_articles(10, interactions))
+# print(se.get_top_article_ids(10, interactions))
+#
+# # SECTION 2.2
+# top_5 = se.get_top_articles(5, interactions)
+# top_10 = se.get_top_articles(10, interactions)
+# top_20 = se.get_top_articles(20, interactions)
+# print(top_5)
+# print(top_10)
+# print(top_20)
+
 ##################################################################################
-#   Part II: Rank-Based Recommendations
+#   Part III: User-User Based Collaborative Filtering
 ##################################################################################
 
-# SECTION 2.1
-print(se.get_top_articles(10, interactions))
-print(se.get_top_article_ids(10, interactions))
-
-# SECTION 2.2
-top_5 = se.get_top_articles(5, interactions)
-top_10 = se.get_top_articles(10, interactions)
-top_20 = se.get_top_articles(20, interactions)
-print(top_5)
-print(top_10)
-print(top_20)
-
-# titles = se.get_top_articles(10, interactions)
-#
-# for title in titles:
-#       print(title)
-#
-# ids = se.get_top_article_ids(10, interactions)
-#
-# print(ids)
+# SECTION 3.1
+user_item_matrix = se.create_user_item_matrix(interactions)
+user_item_matrix.to_csv('data/user_item_matrix.csv', index=False)
+se.test_user_item_matrix(user_item_matrix)
 
 # se.show_num_article_interaction_distribution(interactions)
 
