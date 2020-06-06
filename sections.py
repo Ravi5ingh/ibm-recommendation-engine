@@ -199,6 +199,8 @@ def test_get_articles(user_item_matrix, interactions):
     :param interactions: The raw interaction data
     """
 
+    print('-----BEGIN TEST-----')
+
     # Test your functions here - No need to change this code - just run this cell
     assert set(get_article_names(['1024.0', '1176.0', '1305.0', '1314.0', '1422.0', '1427.0'], interactions)) == set(
         ['using deep learning to reconstruct high-resolution audio',
@@ -220,6 +222,8 @@ def test_get_articles(user_item_matrix, interactions):
                                                 'use r dataframes & ibm watson natural language understanding',
                                                 'use xgboost, scikit-learn & ibm watson machine learning apis'])
     print("If this is all you see, you passed all of our tests!  Nice job!")
+
+    print('-----END TEST-----')
 
 def get_article_names(article_ids, interactions):
     """
@@ -278,17 +282,6 @@ def user_user_recs(user_id, m, user_item_matrix, interactions):
 
     return recommended_article_ids[0:m]
 
-def test_similar_users(user_item_matrix):
-    """
-    Perform some sanity checking on the find similar users functionality
-    :param user_item_matrix: The user item interaction matrix
-    """
-
-    # Do a spot check of your function
-    print("The 10 most similar users to user 1 are: {}".format(find_similar_users(1, user_item_matrix)[:10]))
-    print("The 5 most similar users to user 3933 are: {}".format(find_similar_users(3933, user_item_matrix)[:5]))
-    print("The 3 most similar users to user 46 are: {}".format(find_similar_users(46, user_item_matrix)[:3]))
-
 def find_similar_users(user_id, user_item_matrix):
     """
     Finds the most similar users in terms of the browsing habits
@@ -296,7 +289,7 @@ def find_similar_users(user_id, user_item_matrix):
     :param user_item_matrix: The user item interaction matrix
     :return: A list of user ids (excluding the queried one) that ranks users from most similar to least similar
     """
-
+    
     user_vector = user_item_matrix[user_item_matrix['user_id'] == user_id].iloc[0].tolist()[1:]
     other_users_vectors = user_item_matrix[user_item_matrix['user_id'] != user_id]
 
