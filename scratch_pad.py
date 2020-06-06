@@ -7,20 +7,20 @@ import pandas as pd
 
 se.widen_df_display()
 
+xx = [1.0, 2.0, 3.0]
+
+print(xx)
+print(set(map(lambda x: str(x), xx)))
+
+#region Old
+
 # user_item_matrix = ut.read_csv('data/user_item_matrix.csv')
 # user_item_matrix = user_item_matrix[user_item_matrix.columns[1:]].values.astype(int)
-
-dd = pd.DataFrame()
-dd['a'] = [1, 2, 3]
-dd['b'] = [1, 2, 3]
-
-ut.whats(dd.columns.values)
 
 # print(u.shape)
 
 # print(s.shape)
 # print(vt.shape)
-#region Old
 
 # Get values of dictionary in sorted format
 # list(map(lambda x: x[1], sorted(email_interactions.items(), key=lambda x: x[1])))
